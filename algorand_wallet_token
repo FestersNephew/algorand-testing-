@@ -1,0 +1,30 @@
+// Import the required libraries
+const algosdk = require('algosdk');
+
+// Set up the connection to the Algorand network
+const client = new algosdk.Algod('https://testnet-algorand.api.purestake.io/ps1', 'API_KEY', 'API_TOKEN');
+
+// Generate a new wallet with a randomly generated mnemonic
+const wallet = algosdk.mnemonicToSecretKey(algosdk.generateMnemonic());
+
+// Display the wallet details to the user
+console.log('Wallet address: ' + wallet.addr);
+console.log('Wallet mnemonic: ' + wallet.mnemonic);
+
+// Prompt the user for the amount of tokens to buy
+const amount = prompt('Enter the amount of tokens to buy:');
+
+// Connect to the network and get the current transaction parameters
+const params = await client.getTransactionParams();
+
+// Create a transaction to buy tokens
+const txn = algosdk.makePaymentTxnWithSuggestedParams(wallet.addr, wallet.addr, amount, undefined, undefined, params);
+
+// Sign the transaction with the wallet
+const signedTxn = algosdk.signTransaction(txn, wallet.sk);
+
+// Submit the transaction to the network
+const txId = await client.sendRawTransaction(signedTxn);
+
+// Confirm that the transaction was successful
+console.log('Transaction successful! Transaction ID: ' + txId);
